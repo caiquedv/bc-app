@@ -1,1 +1,5 @@
 *.pem
+
+# SSL/TLS Certificates
+server.key
+server.crt
