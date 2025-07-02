@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bc_app_frontend
+    ports:
+      - "3001:80"
+    restart: unless-stopped
+    networks:
+      - bc_app_network
+
+networks:
+  bc_app_network:
+    driver: bridge

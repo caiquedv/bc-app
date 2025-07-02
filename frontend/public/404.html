@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Captura a URL que causou o 404 e salva no sessionStorage
+      var redirect = sessionStorage.redirect;
+      delete sessionStorage.redirect;
+      
+      if (redirect && redirect !== location.href) {
+        // Se já temos um redirect salvo, vamos para lá
+        history.replaceState(null, null, redirect);
+      } else {
+        // Salva a URL atual (que causou o 404) para usar depois
+        var currentPath = location.pathname + location.search + location.hash;
+        if (currentPath !== '/' && currentPath !== '/index.html') {
+          sessionStorage.redirect = location.href;
+        }
+      }
+      
+      // Redireciona para a página principal
+      location.replace('/');
+    </script>
+  </head>
+  <body>
+    <p>Redirecionando...</p>
+  </body>
+</html>
