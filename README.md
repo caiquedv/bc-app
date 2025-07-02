@@ -68,8 +68,8 @@ Para configurar e executar a `bc_app` localmente, você precisará ter o Docker 
     ```
 
     *   **`POSTGRES_PASSWORD`**: Senha para o usuário `postgres` do banco de dados.
-    *   **`RAILS_MASTER_KEY`**: Chave mestra do Rails. Você pode gerar uma executando `rails secret` dentro do diretório `backend/` (após o `bundle install` inicial, se necessário).
-    *   **`SECRET_KEY_BASE`**: Chave secreta para o ambiente de produção do Rails. Você pode gerar uma executando `rails secret` dentro do diretório `backend/`.
+    *   **`RAILS_MASTER_KEY`**: Chave mestra do Rails. Você pode gerar uma executando `rails secret` dentro do diretório `backend/` (após o `bundle install` inicial, se necessário). Esta chave é usada para criptografia de credenciais e outras informações sensíveis.
+    *   **`SECRET_KEY_BASE`**: Chave secreta para o ambiente de produção do Rails. Você pode gerar uma executando `rails secret` dentro do diretório `backend/`. Essencial para a segurança de sessões e outros dados em produção.
     *   **`VITE_API_BASE_URL`**: URL base da API do backend para o frontend. Em desenvolvimento, `localhost:3000` é o padrão.
 
 3.  **Construa e Inicie os Contêineres com Docker Compose:**
@@ -89,7 +89,7 @@ Para configurar e executar a `bc_app` localmente, você precisará ter o Docker 
     docker exec bc_app-web-1 bundle exec rails db:create db:migrate
     ```
 
-    *   `bc_app-web-1`: É o nome padrão do contêiner do serviço `web` (backend) gerado pelo Docker Compose. Você pode verificar o nome exato com `docker ps`.
+    *   `bc_app-web-1`: É o nome padrão do contêiner do serviço `web` (backend) gerado pelo Docker Compose. Você pode verificar o nome exato com `docker ps` se tiver dúvidas.
 
 ### Acessando a Aplicação
 

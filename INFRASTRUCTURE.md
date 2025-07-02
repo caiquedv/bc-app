@@ -25,7 +25,7 @@ A AWS é a plataforma de nuvem escolhida para hospedar a aplicação, aproveitan
     *   **Porta 22 (SSH):** Para acesso administrativo à instância.
     *   **Porta 80 (HTTP):** Para tráfego web não criptografado, servido pelo Nginx.
     *   **Porta 443 (HTTPS):** Para tráfego web criptografado (preparação para futura configuração SSL/TLS).
-*   **Docker Network (`bc-app-network`):** Uma rede interna Docker é criada na instância EC2 para permitir a comunicação segura e isolada entre os contêineres da aplicação (PostgreSQL, Backend, Frontend, Nginx). Isso garante que os serviços possam se comunicar usando seus nomes de contêiner (ex: `postgres-db`, `backend-app`) sem expor portas diretamente ao host ou à internet.
+*   **Docker Network (`bc-app-network`):** Uma **Docker bridge network** interna é criada na instância EC2 para permitir a comunicação segura e isolada entre os contêineres da aplicação (PostgreSQL, Backend, Frontend, Nginx). Esta rede é lógica e opera dentro do host Docker, distinta das configurações de rede da AWS (VPC, subnets). Isso garante que os serviços possam se comunicar usando seus nomes de contêiner (ex: `postgres-db`, `backend-app`) sem expor portas diretamente ao host ou à internet.
 
 #### 2.4. Armazenamento: Docker Volume para PostgreSQL
 
@@ -47,7 +47,7 @@ A `bc_app` adota uma estratégia de implantação em produção baseada em **Doc
 
 #### 3.2. Orquestração de Contêineres (Comandos Docker)
 
-Os serviços são iniciados e gerenciados através de comandos `docker run` e `docker exec` na instância EC2. A sequência de inicialização é crucial para garantir que as dependências estejam disponíveis:
+Os serviços são iniciados e gerenciados através de comandos `docker run` e `docker exec` na instância EC2. Esta é uma abordagem de orquestração **manual**, onde o administrador é responsável por iniciar, parar e monitorar cada contêiner individualmente. A sequência de inicialização é crucial para garantir que as dependências estejam disponíveis:
 
 1.  **Criação da Rede Docker:** `docker network create bc-app-network`
 2.  **Criação do Volume PostgreSQL:** `docker volume create postgres-data`
@@ -68,7 +68,7 @@ O Nginx atua como um **reverse proxy** e ponto de entrada para a aplicação, ge
     ```nginx
     server {
         listen 80;
-        server_name <Elastic IP ou Domínio>; # Ex: 3.16.179.21
+        server_name <Elastic IP ou Domínio>; # Ex: 3.16.179.21. Em produção, este valor deve corresponder ao IP público ou domínio associado à sua instância.
 
         # Redireciona todo o tráfego HTTP para HTTPS
         return 301 https://$host$request_uri;
@@ -76,7 +76,7 @@ O Nginx atua como um **reverse proxy** e ponto de entrada para a aplicação, ge
 
     server {
         listen 443 ssl;
-        server_name <Elastic IP ou Domínio>; # Ex: 3.16.179.21
+        server_name <Elastic IP ou Domínio>; # Ex: 3.16.179.21. Em produção, este valor deve corresponder ao IP público ou domínio associado à sua instância.
 
         ssl_certificate /etc/nginx/certs/server.crt;
         ssl_certificate_key /etc/nginx/certs/server.key;

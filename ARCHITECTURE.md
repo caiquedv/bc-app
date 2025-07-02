@@ -19,7 +19,7 @@ O backend atua como a camada de dados e lógica de negócio da aplicação, impl
 *   **Banco de Dados:** PostgreSQL (versão 16) é utilizado para persistência de dados. Escolhido por sua robustez, escalabilidade e conformidade com ACID, é um banco de dados relacional amplamente utilizado em aplicações de larga escala.
 *   **Conteinerização (Docker):**
     *   **Imagem Base:** `ruby:3.3.6-slim`. A escolha de uma imagem `slim` visa otimizar o tamanho final do contêiner, reduzindo a superfície de ataque e o tempo de download.
-    *   **Processo de Build:** Inclui a instalação de gems (`bundle install`), pré-compilação de assets e configuração do ambiente de produção. O build multi-stage (implícito pelo uso de `FROM base as build` e `FROM base` novamente) otimiza o tamanho da imagem final, removendo ferramentas de build desnecessárias em tempo de execução.
+    *   **Processo de Build:** Inclui a instalação de gems (`bundle install`), pré-compilação de assets e configuração do ambiente de produção. O **multi-stage build** (implícito pelo uso de `FROM base as build` e `FROM base` novamente) é uma técnica arquitetural que otimiza o tamanho da imagem final, removendo ferramentas de build desnecessárias em tempo de execução, resultando em contêineres mais leves e seguros.
     *   **Segurança:** O contêiner executa como um usuário `rails` não-root, uma prática de segurança recomendada para minimizar riscos em caso de comprometimento do contêiner.
     *   **Exposição de Porta:** A porta `3000` é exposta para comunicação, sendo a porta padrão para aplicações Rails.
 *   **Orquestração (Docker Compose - `backend/docker-compose.yml` - Apenas para Desenvolvimento):**
@@ -28,7 +28,7 @@ O backend atua como a camada de dados e lógica de negócio da aplicação, impl
 
 #### 2.1.1. Endpoints da API (v1)
 
-A API expõe os seguintes recursos principais:
+A API expõe os seguintes recursos principais. A inclusão do prefixo `/v1` nas rotas é uma prática de **versionamento de API**, permitindo futuras iterações da API (ex: `/v2`) sem quebrar a compatibilidade com clientes existentes.
 
 *   **`GET /api/v1/categories`**: Retorna uma lista completa de todas as categorias de produtos.
 *   **`GET /api/v1/categories/:slug`**: Retorna os detalhes de uma categoria específica, identificada pelo seu `slug` único.
@@ -66,7 +66,7 @@ O frontend é a interface do usuário da aplicação, responsável por consumir 
 *   **Gerenciador de Pacotes:** Bun, um runtime JavaScript e gerenciador de pacotes rápido, utilizado para gerenciar as dependências do projeto.
 *   **Servidor Web:** Nginx é utilizado para servir os arquivos estáticos do frontend em produção. É um servidor web leve e de alta performance, ideal para servir SPAs.
 *   **Conteinerização (Docker - Multi-stage build):**
-    *   **Estágio de Build (`builder`):** Utiliza a imagem `oven/bun:1`. Neste estágio, todas as dependências são instaladas e a aplicação é compilada para produção. O uso de `ARG` e `ENV` para `VITE_API_BASE_URL` demonstra a capacidade de injetar variáveis de ambiente em tempo de build, permitindo que o frontend saiba para qual API se conectar.
+    *   **Estágio de Build (`builder`):** Utiliza a imagem `oven/bun:1`. Neste estágio, todas as dependências são instaladas e a aplicação é compilada para produção. O uso de `ARG` e `ENV` para `VITE_API_BASE_URL` demonstra a capacidade de injetar variáveis de ambiente em tempo de build, permitindo que o frontend saiba para qual API se conectar. O **multi-stage build** é uma técnica arquitetural que otimiza o tamanho da imagem final, removendo ferramentas de build desnecessárias em tempo de execução, resultando em contêineres mais leves e seguros.
     *   **Estágio de Serviço:** Utiliza a imagem `nginx:stable-alpine`. Este estágio é otimizado para servir apenas os artefatos de build gerados no estágio anterior, resultando em uma imagem final menor e mais segura. O Nginx é configurado para servir os arquivos estáticos e lidar com o roteamento de SPA (redirecionando todas as requisições para o `index.html` para que o `react-router-dom` possa assumir o controle).
 *   **Orquestração (Docker Compose - `frontend/docker-compose.yml` - Apenas para Desenvolvimento):**
     *   **Serviço `frontend`:** Constrói a imagem Docker a partir do `Dockerfile` local. A porta `80` do contêiner (Nginx) é mapeada para a porta `3001` do host, tornando o frontend acessível durante o desenvolvimento.
