@@ -96,6 +96,11 @@ Para configurar e executar a `bc_app` localmente, você precisará ter o Docker 
 *   **Frontend:** Acesse `http://localhost:3001` no seu navegador.
 *   **Backend API:** A API estará disponível em `http://localhost:3000/api/v1`.
 
+## Live Demo
+
+Você pode ver a aplicação funcionando em produção, acessível via HTTPS. **Atenção:** Como o certificado SSL/TLS é autoassinado (para fins de estudo e sem custo de domínio), seu navegador exibirá um aviso de segurança. Você precisará aceitar a exceção para prosseguir.
+[https://3.16.179.21](https://3.16.179.21)
+
 ## Estrutura do Projeto
 
 *   `backend/`: Contém a aplicação Ruby on Rails (API).

@@ -57,10 +57,11 @@ Os serviços são iniciados e gerenciados através de comandos `docker run` e `d
 6.  **Início do Contêiner Frontend:** O contêiner `frontend-app` é iniciado, conectado à `bc-app-network`, com a `VITE_API_BASE_URL` configurada.
 7.  **Início do Contêiner Nginx Reverse Proxy:** O contêiner `nginx-proxy` é iniciado, conectado à `bc-app-network`, mapeando a porta 80 do host para a porta 80 do contêiner. Ele utiliza um arquivo `nginx.conf` customizado para rotear as requisições.
 
-#### 3.3. Roteamento de Tráfego: Nginx Reverse Proxy
+#### 3.3. Roteamento de Tráfego: Nginx Reverse Proxy e HTTPS
 
-O Nginx atua como um **reverse proxy** e ponto de entrada para a aplicação. Ele é configurado para:
+O Nginx atua como um **reverse proxy** e ponto de entrada para a aplicação, gerenciando tanto o tráfego HTTP quanto o HTTPS. Ele é configurado para:
 
+*   **Redirecionar HTTP para HTTPS:** Todo o tráfego HTTP recebido na porta 80 é automaticamente redirecionado para HTTPS na porta 443, garantindo que a comunicação seja sempre criptografada.
 *   **Servir o Frontend:** Requisições para a raiz (`/`) são encaminhadas para o contêiner `frontend-app`.
 *   **Encaminhar para o Backend:** Requisições para `/api/` são encaminhadas para o contêiner `backend-app`.
 *   **Configuração (`nginx/nginx.conf`):**
@@ -69,18 +70,42 @@ O Nginx atua como um **reverse proxy** e ponto de entrada para a aplicação. El
         listen 80;
         server_name <Elastic IP ou Domínio>; # Ex: 3.16.179.21
 
+        # Redireciona todo o tráfego HTTP para HTTPS
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name <Elastic IP ou Domínio>; # Ex: 3.16.179.21
+
+        ssl_certificate /etc/nginx/certs/server.crt;
+        ssl_certificate_key /etc/nginx/certs/server.key;
+
+        # Configurações SSL básicas (pode ser expandido para maior segurança)
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_prefer_server_ciphers on;
+        ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 10m;
+
         location / {
             proxy_pass http://frontend-app:80; # Encaminha para o contêiner frontend
-            # Headers para proxy
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /api/ {
             proxy_pass http://backend-app:3000; # Encaminha para o contêiner backend
-            # Headers para proxy
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
     ```
-    Esta configuração permite que o frontend e o backend sejam acessados através de um único ponto de entrada (o Nginx), simplificando a exposição da aplicação e permitindo futuras configurações de SSL/TLS no Nginx.
+    Esta configuração permite que o frontend e o backend sejam acessados através de um único ponto de entrada (o Nginx), simplificando a exposição da aplicação e garantindo a comunicação segura via HTTPS. Para ambientes de estudo, um **certificado autoassinado** é utilizado, o que pode gerar avisos de segurança no navegador.
 
 ### 4. Processo de Implantação (Foco na Infraestrutura)
 
