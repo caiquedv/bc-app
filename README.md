@@ -1,5 +1,7 @@
 # bc_app
 
+Um cardápio digital moderno e eficiente que simplifica o processo de pedidos, enviando-os diretamente para o WhatsApp do estabelecimento. Desenvolvido para otimizar a gestão de pedidos e a experiência do cliente, eliminando a necessidade de lidar com anotações manuais.
+
 ## Visão Geral do Projeto
 
 A `bc_app` é uma aplicação full-stack moderna, composta por um **backend** robusto desenvolvido em Ruby on Rails e um **frontend** dinâmico construído com React, Vite e TypeScript. A arquitetura é baseada em microsserviços conteinerizados, utilizando Docker para empacotamento e Docker Compose para orquestração em ambiente de desenvolvimento, facilitando o desenvolvimento, a implantação e a escalabilidade.
